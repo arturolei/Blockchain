@@ -10,9 +10,9 @@ https://imgur.com/xSlgvtl
 * [] Client Miners (client_mining_p)
 
 ### Part 2 in Class Project
-* Basic Transactions (basic_transactions_gp)
+* [] Basic Transactions (basic_transactions_gp)
 
 ### Part 2 Take Home Project
-* Basic Wallet (basic_wallet_p)
+* [] Basic Wallet (basic_wallet_p)
 
 Based on blockchain by dvf.  Used under MIT license:  https://github.com/dvf/blockchain
