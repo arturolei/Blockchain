@@ -7,7 +7,7 @@ https://imgur.com/xSlgvtl
 * [X] Basic Setup and Proof of Work (basic_block_gp)
 
 ### Part 1 Take Home Project
-* [] Client Miners (client_mining_p)
+* [X] Client Miners (client_mining_p)
 
 ### Part 2 in Class Project
 * [] Basic Transactions (basic_transactions_gp)
