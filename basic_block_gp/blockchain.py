@@ -12,7 +12,8 @@ class Blockchain(object):
         self.current_transactions = []
 
         # Create the genesis block
-        self.new_block(previous_hash=1, proof=100)
+        # We always have to have a started block
+        self.new_block(previous_hash=1, proof=100) 
 
     def new_block(self, proof, previous_hash=None):
         """
@@ -31,13 +32,21 @@ class Blockchain(object):
         """
 
         block = {
-            # TODO
+            'index': len(self.chain) + 1,
+            'proof': proof,
+            'timestamp': time(),
+            'transactions':self.current_transactions,
+            'previous_hash': previous_hash,
         }
 
-        # Reset the current list of transactions
-        # Append the chain to the block
+        # Reset the current list of transactions 
+        # --> We can safely update the list of transactions since things have happened
+        self.current_transactions = [] 
+
+        # Append the block to the chain
+        self.chain.append(block)
         # Return the new block
-        pass
+        return block
 
     def hash(self, block):
         """
@@ -56,17 +65,25 @@ class Blockchain(object):
         # or we'll have inconsistent hashes
 
         # TODO: Create the block_string
+        #json.dumps will do the work of turning the block/JSON object into a string
+        # NB: order in a dictionary is not guaranteed, so order of keys/values might be important
+         
+        block_string = json.dumps(block) 
+        string_in_bytes = block_string.encode()
 
         # TODO: Hash this string using sha256
+        hash_object = hashlib.sha256(string_in_bytes)
 
-        # By itself, the sha256 function returns the hash in a raw string
+        # By itself, the sha256 function returns the hash in a raw string (a hash object)
         # that will likely include escaped characters.
         # This can be hard to read, but .hexdigest() converts the
         # hash to a string of hexadecimal characters, which is
         # easier to work with and understand
 
         # TODO: Return the hashed block string in hexadecimal format
-        pass
+        hash_string = hash_object.hexdigest()
+
+        return hash_string
 
     @property
     def last_block(self):
@@ -80,9 +97,15 @@ class Blockchain(object):
         in an effort to find a number that is a valid proof
         :return: A valid proof for the provided block
         """
-        # TODO
-        pass
+        block_string = json.dumps(block, sort_keys=True)
+
+        proof = 0 
+
+        while self.valid_proof(block_string, proof) is False:
+            proof += 1
+
         # return proof
+        return proof
 
     @staticmethod
     def valid_proof(block_string, proof):
@@ -96,9 +119,12 @@ class Blockchain(object):
         correct number of leading zeroes.
         :return: True if the resulting hash is a valid proof, False otherwise
         """
-        # TODO
-        pass
+        guess = f'{block_string}{proof}'.encode() #we need to turn it into bytes
+        guess_hash = hashlib.sha256(guess).hexdigest()
+
+        
         # return True or False
+        return guess_hash[:3] == '000'
 
 
 # Instantiate our Node
@@ -114,11 +140,18 @@ blockchain = Blockchain()
 @app.route('/mine', methods=['GET'])
 def mine():
     # Run the proof of work algorithm to get the next proof
+    block = blockchain.last_block
+    proof = blockchain.proof_of_work(block)
 
     # Forge the new Block by adding it to the chain with the proof
+    block_hash = blockchain.hash(block)
+    new_block = blockchain.new_block(proof, block_hash)
 
     response = {
-        # TODO: Send a JSON response with the new block
+        'message': "Hey, I found a proof! and forged a new block",
+        'index':new_block['index'],
+        'proof': new_block['proof'],
+        'previous_hash':block_hash
     }
 
     return jsonify(response), 200
@@ -128,6 +161,8 @@ def mine():
 def full_chain():
     response = {
         # TODO: Return the chain and its current length
+        'chain':blockchain.chain,
+        'chain_length':len(blockchain.chain)
     }
     return jsonify(response), 200
 
